@@ -92,7 +92,7 @@ ex) http://google.com
 
 현재 이메일, 슬랙 알람을 지원하며 관련 인증 정보를 관리하고 해당 서비스를 호출하는 역할을 함
 
-### email Service
+### Report Service
 
 - service
     - type - `ClusterIP`
@@ -131,6 +131,17 @@ ex) http://google.com
     - 슬랙 메시지 전송
 
 도메인, 채널, 내용, token을 인자로 슬랙 메시지 전송
+
+### Endpoint Check
+
+- service
+    - type - `ClusterIP`
+    - serviceName - `endpoint-check`
+    - servicePort - `80`
+- Internal API
+    - 체크
+
+사용자 요청 또는 주기적으로 endpoint가 정상인지 체크
 
 ### log
 
