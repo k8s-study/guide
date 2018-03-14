@@ -310,3 +310,21 @@ Kong에 기본으로 내장되어 있는 authentication plugin 입니다.
 Header 또는 parameter로 `apikey` 값을 전달하면 key-auth plugin이 자동으로 해당 키를 가지고 있는 consumer를 조회 하고 upstream api를 호출할 때 `X-Consumer-Custom-ID`를 붙여서 전달합니다.
 
 마이크로서비스는 `X-Consumer-Custom-ID`가 있으면 로그인한걸로 판단하고 없으면 로그인하지 않은것으로 판단합니다.
+
+## 로컬 테스트 환경
+
+### /etc/hosts
+
+```
+127.0.0.1 pongpong.io www.pongpong.io api.pongpong.io admin.pongpong.io
+```
+
+### nginx ingress
+
+docker for mac 사용시 필요
+
+```
+$ brew install kubernetes-helm
+$ helm init
+$ helm install stable/nginx-ingress
+```
