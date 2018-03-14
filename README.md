@@ -21,9 +21,14 @@ pongpong(가칭)은 https://apex.sh/ping/ 클론 프로젝트 입니다. 체크 
 
 User가 browser로 접속해서 서비스를 사용하는 Webapp
 
-### CLI
+https://github.com/k8s-study/frontend @subicura
+
+### Pong CLI
 
 터미널에서 실행가능한 클라이언트
+
+https://github.com/k8s-study/pong-cli @anarcher
+
 
 ### API Gateway
 
@@ -35,6 +40,8 @@ User가 browser로 접속해서 서비스를 사용하는 Webapp
     - servicePort - `8000`
 
 Kong 사용. 간략한 개념은 뒷부분에서 다시 설명
+
+https://github.com/k8s-study/kong @Ashon
 
 ### User Service
 
@@ -54,6 +61,8 @@ Kong 사용. 간략한 개념은 뒷부분에서 다시 설명
 
 Kong의 consumer를 관리하고 Kong의 `key-auth` plugin을 이용하여 key를 조회함
 
+https://github.com/k8s-study/user-service @outsideris
+
 ### Endpoint Service
 
 - service
@@ -71,6 +80,8 @@ Kong의 consumer를 관리하고 Kong의 `key-auth` plugin을 이용하여 key�
 웹서비스가 살았는지 체크 하기 위한 목록을 관리
 
 ex) http://google.com
+
+https://github.com/k8s-study/endpoint-service @findstar
 
 ### Notification Service
 
@@ -92,6 +103,8 @@ ex) http://google.com
 
 현재 이메일, 슬랙 알람을 지원하며 관련 인증 정보를 관리하고 해당 서비스를 호출하는 역할을 함
 
+https://github.com/k8s-study/notification-service @b6pzeusbc54tvhw5jgpyw8pwz2x6gs
+
 ### Report Service
 
 - service
@@ -110,6 +123,8 @@ ex) http://google.com
 
 리스트 조회 쿼리에 날짜를 쿼리 파라미터로 받음
 
+https://github.com/k8s-study/report-service @SsureyMoon
+
 ### Email Service
 
 - service
@@ -120,6 +135,8 @@ ex) http://google.com
     - 이메일 전송
 
 받는사람, 제목, 내용을 인자로 이메일을 전송
+
+https://github.com/k8s-study/email-service
 
 ### Slack Service
 
@@ -132,6 +149,8 @@ ex) http://google.com
 
 도메인, 채널, 내용, token을 인자로 슬랙 메시지 전송
 
+https://github.com/k8s-study/slack-service @asbubam
+
 ### Endpoint Check
 
 - service
@@ -143,7 +162,9 @@ ex) http://google.com
 
 사용자 요청 또는 주기적으로 endpoint가 정상인지 체크
 
-### log
+https://github.com/k8s-study/endpoint-check @tedpark
+
+### logging
 
 - service
     - type - `Ingress`
@@ -154,6 +175,8 @@ ex) http://google.com
 - \+ agent services
 
 로깅
+
+https://github.com/k8s-study/logging @posquit0
 
 ### monitoring
 
@@ -166,6 +189,8 @@ ex) http://google.com
 - \+ agent services
 
 모니터링
+
+https://github.com/k8s-study/monitoring @yoanp
 
 ## 서비스 규칙
 
