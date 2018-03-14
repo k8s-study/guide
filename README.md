@@ -16,7 +16,7 @@ pongpong(가칭)은 https://apex.sh/ping/ 클론 프로젝트 입니다. 체크 
     - type - `Ingress`
     - host - `pongpong.io`, `www.pongpong.io`
     - path - `/`
-    - serviceName - `frontend`
+    - serviceName - `k8s-frontend`
     - servicePort - `80`
 
 User가 browser로 접속해서 서비스를 사용하는 Webapp
@@ -36,7 +36,7 @@ https://github.com/k8s-study/pong-cli @anarcher
     - type - `Ingress`
     - host - `api.pongpong.io`
     - path - `/`
-    - serviceName - `frontend`
+    - serviceName - `k8s-kong`
     - servicePort - `8000`
 
 Kong 사용. 간략한 개념은 뒷부분에서 다시 설명
@@ -47,7 +47,7 @@ https://github.com/k8s-study/kong @Ashon
 
 - service
     - type - `ClusterIP`
-    - serviceName - `user-service`
+    - serviceName - `k8s-user-service`
     - servicePort - `80`
 - kong api
     - uris - `/user-service`
@@ -67,7 +67,7 @@ https://github.com/k8s-study/user-service @outsideris
 
 - service
     - type - `ClusterIP`
-    - serviceName - `endpoint-service`
+    - serviceName - `k8s-endpoint-service`
     - servicePort - `80`
 - kong api
     - uris - `/endpoint-service`
@@ -87,7 +87,7 @@ https://github.com/k8s-study/endpoint-service @findstar
 
 - service
     - type - `ClusterIP`
-    - serviceName - `notification-service`
+    - serviceName - `k8s-notification-service`
     - servicePort - `80`
 - kong api
     - uris - `/notification-service`
@@ -109,7 +109,7 @@ https://github.com/k8s-study/notification-service @b6pzeusbc54tvhw5jgpyw8pwz2x6g
 
 - service
     - type - `ClusterIP`
-    - serviceName - `report-service`
+    - serviceName - `k8s-report-service`
     - servicePort - `80`
 - kong api
     - uris - `/report-service`
@@ -129,7 +129,7 @@ https://github.com/k8s-study/report-service @SsureyMoon
 
 - service
     - type - `ClusterIP`
-    - serviceName - `email-service`
+    - serviceName - `k8s-email-service`
     - servicePort - `80`
 - Internal API
     - 이메일 전송
@@ -142,7 +142,7 @@ https://github.com/k8s-study/email-service
 
 - service
     - type - `ClusterIP`
-    - serviceName - `slack-service`
+    - serviceName - `k8s-slack-service`
     - servicePort - `80`
 - Internal API
     - 슬랙 메시지 전송
@@ -155,7 +155,7 @@ https://github.com/k8s-study/slack-service @asbubam
 
 - service
     - type - `ClusterIP`
-    - serviceName - `endpoint-check`
+    - serviceName - `k8s-endpoint-check`
     - servicePort - `80`
 - Internal API
     - 체크
@@ -170,7 +170,7 @@ https://github.com/k8s-study/endpoint-check @tedpark
     - type - `Ingress`
     - host - `admin.pongpong.io`
     - path - `/kibana`
-    - serviceName - `kibana`
+    - serviceName - `k8s-kibana`
     - servicePort - `80`
 - \+ agent services
 
@@ -184,7 +184,7 @@ https://github.com/k8s-study/logging @posquit0
     - type - `Ingress`
     - host - `admin.pongpong.io`
     - path - `/grafana`
-    - serviceName - `grafana`
+    - serviceName - `k8s-grafana`
     - servicePort - `80`
 - \+ agent services
 
@@ -290,7 +290,7 @@ Response sample
 기본적으로 유저는 kong api gateway를 호출하고 kong이 다시 내부 서비스를 호출합니다.
 
 - uris - 유저가 호출하는 uri ex) `/user-service`
-- upstream url - uris 규칙으로 들어온 요청을 어디로 전달할지 설정 ex) `http://user-service/api`
+- upstream url - uris 규칙으로 들어온 요청을 어디로 전달할지 설정 ex) `http://k8s-user-service/api`
 - strip uri - 유저가 `https://api.pongpong.io/user-service/users/1`를 요청하면 `/user-service`를 제거하고 upstream을 요청할때는 `https://api.pongpong.io/api/users/1`을 전달함
 
 ### Consumer
