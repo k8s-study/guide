@@ -229,6 +229,8 @@ Response sample
 
 - 페이징
 
+parameters - `page` (1,2,3,... default 1), `per_page` (default 20)
+
 ```
 {
   "items": {
