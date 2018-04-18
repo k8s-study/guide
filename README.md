@@ -16,7 +16,7 @@ pongpong(가칭)은 https://apex.sh/ping/ 클론 프로젝트 입니다. 체크 
     - type - `Ingress`
     - host - `pongpong.io`, `www.pongpong.io`
     - path - `/`
-    - serviceName - `k8s-frontend`
+    - serviceName - `pong-frontend`
     - servicePort - `80`
 
 User가 browser로 접속해서 서비스를 사용하는 Webapp
@@ -36,7 +36,7 @@ https://github.com/k8s-study/pong-cli @anarcher
     - type - `Ingress`
     - host - `api.pongpong.io`
     - path - `/`
-    - serviceName - `k8s-kong`
+    - serviceName - `pong-kong`
     - servicePort - `8000`
 
 Kong 사용. 간략한 개념은 뒷부분에서 다시 설명
@@ -47,11 +47,11 @@ https://github.com/k8s-study/kong @Ashon
 
 - service
     - type - `ClusterIP`
-    - serviceName - `k8s-user-service`
+    - serviceName - `pong-user-service`
     - servicePort - `80`
 - kong api
     - uris - `/user-service`
-    - upstream api - `http://user-service/api`
+    - upstream api - `http://pong-user-service/api`
 - API
     - 유저 CRUD + 로그인 / 로그아웃
 - Internal API
@@ -67,11 +67,11 @@ https://github.com/k8s-study/user-service @outsideris
 
 - service
     - type - `ClusterIP`
-    - serviceName - `k8s-endpoint-service`
+    - serviceName - `pong-endpoint-service`
     - servicePort - `80`
 - kong api
     - uris - `/endpoint-service`
-    - upstream api - `http://endpoint-service/api`
+    - upstream api - `http://pong-endpoint-service/api`
 - API
     - 엔드포인트 CRUD
 - Internal API
@@ -87,11 +87,11 @@ https://github.com/k8s-study/endpoint-service @findstar
 
 - service
     - type - `ClusterIP`
-    - serviceName - `k8s-notification-service`
+    - serviceName - `pong-notification-service`
     - servicePort - `80`
 - kong api
     - uris - `/notification-service`
-    - upstream api - `http://notification-service/api`
+    - upstream api - `http://pong-notification-service/api`
 - API
     - 알람 설정 CRUD
     - 알람 호출(테스트)
@@ -109,11 +109,11 @@ https://github.com/k8s-study/notification-service @b6pzeusbc54tvhw5jgpyw8pwz2x6g
 
 - service
     - type - `ClusterIP`
-    - serviceName - `k8s-report-service`
+    - serviceName - `pong-report-service`
     - servicePort - `80`
 - kong api
     - uris - `/report-service`
-    - upstream api - `http://report-service/api`
+    - upstream api - `http://pong-report-service/api`
 - API
     - 리포트 리스트 조회 / 리포트 상세 조회
 - Internal API
@@ -129,7 +129,7 @@ https://github.com/k8s-study/report-service @SsureyMoon
 
 - service
     - type - `ClusterIP`
-    - serviceName - `k8s-email-service`
+    - serviceName - `pong-email-service`
     - servicePort - `80`
 - Internal API
     - 이메일 전송
@@ -142,7 +142,7 @@ https://github.com/k8s-study/email-service
 
 - service
     - type - `ClusterIP`
-    - serviceName - `k8s-slack-service`
+    - serviceName - `pong-slack-service`
     - servicePort - `80`
 - Internal API
     - 슬랙 메시지 전송
@@ -155,7 +155,7 @@ https://github.com/k8s-study/slack-service @asbubam
 
 - service
     - type - `ClusterIP`
-    - serviceName - `k8s-endpoint-check`
+    - serviceName - `pong-endpoint-check`
     - servicePort - `80`
 - Internal API
     - 체크
@@ -170,7 +170,7 @@ https://github.com/k8s-study/endpoint-check @tedpark
     - type - `Ingress`
     - host - `admin.pongpong.io`
     - path - `/kibana`
-    - serviceName - `k8s-kibana`
+    - serviceName - `pong-kibana`
     - servicePort - `80`
 - \+ agent services
 
@@ -184,7 +184,7 @@ https://github.com/k8s-study/logging @posquit0
     - type - `Ingress`
     - host - `admin.pongpong.io`
     - path - `/grafana`
-    - serviceName - `k8s-grafana`
+    - serviceName - `pong-grafana`
     - servicePort - `80`
 - \+ agent services
 
@@ -292,7 +292,7 @@ parameters - `page` (1,2,3,... default 1), `per_page` (default 20)
 기본적으로 유저는 kong api gateway를 호출하고 kong이 다시 내부 서비스를 호출합니다.
 
 - uris - 유저가 호출하는 uri ex) `/user-service`
-- upstream url - uris 규칙으로 들어온 요청을 어디로 전달할지 설정 ex) `http://k8s-user-service/api`
+- upstream url - uris 규칙으로 들어온 요청을 어디로 전달할지 설정 ex) `http://pong-user-service/api`
 - strip uri - 유저가 `https://api.pongpong.io/user-service/users/1`를 요청하면 `/user-service`를 제거하고 upstream을 요청할때는 `https://api.pongpong.io/api/users/1`을 전달함
 
 ### Consumer
