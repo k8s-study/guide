@@ -4,6 +4,30 @@
 
 마이크로서비스를 제대로 구축한다는 것은 굉장히 어렵기 때문에 여기서는 단순하게 API Gateway + REST API 패턴을 사용하고 왜 안티패턴인지 느껴보는 정도로 진행합니다.
 
+- [pongpong 프로젝트 소개](#pongpong)
+    - [Frontend](#frontend)
+    - [Pong CLI](#pong-cli)
+    - [API Gateway / Kong](#api-gateway)
+    - [Service Mesh / Istio](#service-mesh)
+    - [User Service](#user-service)
+    - [Endpoint Service](#endpoint-service)
+    - [Notification Service](#notification-service)
+    - [Report Service](#report-service)
+    - [Email Service](#email-service)
+    - [Slack Service](#slack-service)
+    - [Endpoint Check](#endpoint-check)
+    - [Logging](#logging)
+    - [Monitoring](#monitoring)
+- [서비스 작성 규칙](#서비스-작성-규칙)
+    - [기본 규칙](#기본-규칙)
+    - [REST API 설계](#rest-api-설계)
+    - [Kubernetes Spec](#kubernetes-spec)
+- [Kong 기본 개념](#kong-기본-개념)
+    - [Kong 구성](#kong-구성)
+    - [Kong API](#kong-api)
+    - [Consumer](#consumer)
+    - [Key Authentication](#key-authentication)
+
 ## pongpong
 
 pongpong(가칭)은 https://apex.sh/ping/ 클론 프로젝트 입니다. 체크 하고 싶은 웹 서비스 주소를 입력하면 주기적으로 체크하고 결과를 알려줍니다.
@@ -16,7 +40,7 @@ pongpong(가칭)은 https://apex.sh/ping/ 클론 프로젝트 입니다. 체크 
     - type - `Ingress`
     - host - `pongpong.io`, `www.pongpong.io`
     - path - `/`
-    - serviceName - `pong-frontend`
+    - serviceName - `frontend`
     - servicePort - `80`
 
 User가 browser로 접속해서 서비스를 사용하는 Webapp
@@ -36,25 +60,36 @@ https://github.com/k8s-study/pong-cli @anarcher
     - type - `Ingress`
     - host - `api.pongpong.io`
     - path - `/`
-    - serviceName - `pong-kong`
-    - servicePort - `8000`
+    - serviceName - `kong-proxy`
+    - servicePort - `80`
+- service
+    - type - `ClusterIP`
+    - path - `/`
+    - serviceName - `kong-ingress-controller`
+    - servicePort - `8001`
 
 Kong 사용. 간략한 개념은 뒷부분에서 다시 설명
 
 https://github.com/k8s-study/kong @Ashon
 
+### Service Mesh
+
+[Istio](https://istio.io/)를 이용하여 마이크로서비스간 통신을 관리
+
+TCP(DB)를 제외하고 http통신을 사용하는 서비스만 사용하게 설정
+
 ### User Service
 
 - service
     - type - `ClusterIP`
-    - serviceName - `pong-user-service`
+    - serviceName - `user-service`
     - servicePort - `80`
 - kong api
     - uris - `/user-service`
-    - upstream api - `http://pong-user-service/api`
-- API
+    - upstream api - `http://user-service`
+- Public API
     - 유저 CRUD + 로그인 / 로그아웃
-- Internal API
+- Private API
     - 유저 리스트 조회 / 유저 상세 조회
 
 유저를 생성하고 정보를 수정하고 로그인 및 로그아웃 처리
@@ -67,14 +102,14 @@ https://github.com/k8s-study/user-service @outsideris
 
 - service
     - type - `ClusterIP`
-    - serviceName - `pong-endpoint-service`
+    - serviceName - `endpoint-service`
     - servicePort - `80`
 - kong api
     - uris - `/endpoint-service`
-    - upstream api - `http://pong-endpoint-service/api`
-- API
+    - upstream api - `http://endpoint-service`
+- Public API
     - 엔드포인트 CRUD
-- Internal API
+- Private API
     - 엔드포인트 리스트 조회 / 엔드포인트 상세 조회
 
 웹서비스가 살았는지 체크 하기 위한 목록을 관리
@@ -87,15 +122,15 @@ https://github.com/k8s-study/endpoint-service @findstar
 
 - service
     - type - `ClusterIP`
-    - serviceName - `pong-notification-service`
+    - serviceName - `notification-service`
     - servicePort - `80`
 - kong api
     - uris - `/notification-service`
-    - upstream api - `http://pong-notification-service/api`
-- API
+    - upstream api - `http://notification-service`
+- Public API
     - 알람 설정 CRUD
     - 알람 호출(테스트)
-- Internal API
+- Private API
     - 알람 리스트 조회 / 알람 상세 조회
     - 알람 호출
 
@@ -109,14 +144,14 @@ https://github.com/k8s-study/notification-service @b6pzeusbc54tvhw5jgpyw8pwz2x6g
 
 - service
     - type - `ClusterIP`
-    - serviceName - `pong-report-service`
+    - serviceName - `report-service`
     - servicePort - `80`
 - kong api
     - uris - `/report-service`
-    - upstream api - `http://pong-report-service/api`
-- API
+    - upstream api - `http://report-service/api`
+- Public API
     - 리포트 리스트 조회 / 리포트 상세 조회
-- Internal API
+- Private API
     - 리포트 생성
 
 엔드포인트 체크가 호출한 결과를 저장
@@ -129,7 +164,7 @@ https://github.com/k8s-study/report-service @SsureyMoon
 
 - service
     - type - `ClusterIP`
-    - serviceName - `pong-email-service`
+    - serviceName - `email-service`
     - servicePort - `80`
 - Internal API
     - 이메일 전송
@@ -142,7 +177,7 @@ https://github.com/k8s-study/email-service
 
 - service
     - type - `ClusterIP`
-    - serviceName - `pong-slack-service`
+    - serviceName - `slack-service`
     - servicePort - `80`
 - Internal API
     - 슬랙 메시지 전송
@@ -155,7 +190,7 @@ https://github.com/k8s-study/slack-service @asbubam
 
 - service
     - type - `ClusterIP`
-    - serviceName - `pong-endpoint-check`
+    - serviceName - `endpoint-check`
     - servicePort - `80`
 - Internal API
     - 체크
@@ -164,13 +199,13 @@ https://github.com/k8s-study/slack-service @asbubam
 
 https://github.com/k8s-study/endpoint-check @tedpark
 
-### logging
+### Logging
 
 - service
     - type - `Ingress`
     - host - `admin.pongpong.io`
     - path - `/kibana`
-    - serviceName - `pong-kibana`
+    - serviceName - `logging-kibana`
     - servicePort - `80`
 - \+ agent services
 
@@ -178,13 +213,13 @@ https://github.com/k8s-study/endpoint-check @tedpark
 
 https://github.com/k8s-study/logging @posquit0
 
-### monitoring
+### Monitoring
 
 - service
     - type - `Ingress`
     - host - `admin.pongpong.io`
     - path - `/grafana`
-    - serviceName - `pong-grafana`
+    - serviceName - `monitoring-grafana`
     - servicePort - `80`
 - \+ agent services
 
@@ -192,21 +227,35 @@ https://github.com/k8s-study/logging @posquit0
 
 https://github.com/k8s-study/monitoring @yoanp
 
-## 서비스 규칙
+## 서비스 작성 규칙
+
+### 기본 규칙
 
 어떤 언어/디비를 사용해도 OK
 
-다음 규칙을 준수합니다.
-- `swagger` 설정 파일 제공 (외부용 api와 내부용 api 구분)
-- 외부용 api는 `/api`로 endpoint를 설정 => Kong에서 맵핑함
-- 내부용 api는 `/`로 endpoint를 설정 => 내부에서 바로 사용
-- 기본적인 명명법은 `_ underscore` 방식 사용
-- 서비스 / 백엔드(DB) 용 kubernetes 설정 yml 파일 제공 + README.md 설명
-- github주소는 `/k8s-study/${service name}` 으로 정함
+외부에 공개할(Public) API와 내부 서비스끼리만 사용할(Private) API로 나눔
+
+**Folder Structure**
+
+- README.md: Instruction & Development guide
+- k8s: kubernetes spec
+- docs: swagger
+  - public-spec.yaml (Public API)
+  - private-spec.yaml (Private API)
+
+### REST API 설계
 
 REST API 설계는 다음 규칙을 준수합니다.
 
-Status Code
+**Path Naming**
+
+- health check - `/health` 접속시 `ok`(text) 리턴
+- Public API - `/public`으로 endpoint 설정
+- Private API - `/private`으로 endpoint 설정
+- 기본적인 명명법은 `_ underscore` 방식 사용
+
+**Status Code**
+
 - 200: 성공
 - 201: 생성 (create)
 - 204: 컨텐츠 없음 (delete)
@@ -216,7 +265,7 @@ Status Code
 - 404: not found
 - 500: server error
 
-Response sample
+**Response sample**
 
 - 상세
 
@@ -233,10 +282,10 @@ parameters - `page` (1,2,3,... default 1), `per_page` (default 20)
 
 ```
 {
-  "items": {
+  "items": [{
     "id": 1,
     "content": "content 1"
-  },
+  }],
   "page": {
     "current_page": 1,
     "total_count": 1,
@@ -263,7 +312,7 @@ parameters - `page` (1,2,3,... default 1), `per_page` (default 20)
 
 ```
 {
-  "message":"에러입니다.",
+  "message":"에러메시지입니다.",
   "code": "ERROR"
 }
 ```
@@ -275,25 +324,134 @@ parameters - `page` (1,2,3,... default 1), `per_page` (default 20)
 }
 ```
 
+### Kubernetes Spec
+
+Istio에서 자동으로 수집하는 정보의 값을 설정하기 위해 다음 규칙을 지킴
+
+- Kong Ingress 설정
+- 다음을 참고하여 거의 유사하게 설정함
+
+```
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: user-service
+  annotations:
+    key-auth.plugin.konghq.com: "key-auth-plugin"
+    cors.plugin.konghq.com: "cors-plugin"
+spec:
+  rules:
+  - host: api.pongpong.io
+    http:
+      paths:
+      - path: /user-service
+        backend:
+          serviceName: user-service
+          servicePort: 80
+---
+
+apiVersion: configuration.konghq.com/v1
+kind: KongIngress
+metadata:
+  name: user-service
+proxy:
+  path: /public
+route:
+  strip_path: true
+upstream:
+  service_upstream: true
+```
+
+- Service port 이름을 `http`로 설정해야 prometheus에 정상적으로 로그를 담음
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    name: http      # http로 설정
+  selector:
+    type: api
+    app: user-service
+```
+
+- Deployment 라벨중 `app`과 `version`을 로깅에서 사용함
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  template:
+    metadata:
+      labels:
+        type: api
+        app: user-service # app 사용
+        version: v1       # version 사용
+```
+
+- readinessProbe/livenessProbe는 exec 명령어 사용
+- httpGet을 사용할 수 없음(Istio가 해당 포트를 proxy하기 때문에)
+
+```
+readinessProbe:
+  exec:
+    command:
+    - curl
+    - -f
+    - http://localhost:8080/health
+  periodSeconds: 5
+livenessProbe:
+  exec:
+    command:
+    - curl
+    - -f
+    - http://localhost:8080/health
+  initialDelaySeconds: 10
+  periodSeconds: 5
+```
+
+- 내부 서비스에서 외부 주소(api.pongpong.io)를 호출할 수 있게 route rule 추가
+
+```
+apiVersion: config.istio.io/v1alpha2
+kind: RouteRule
+metadata:
+ name: user-service-rewrite-rule
+spec:
+  destination:
+    service: kong-proxy.kong.svc.cluster.local
+  match:
+    request:
+      headers:
+        uri:
+          prefix: /user-service
+  rewrite:
+    authority: api.pongpong.io
+```
+
 ## Kong 기본 개념
 
-### 구성
+### Kong 구성
 
-- 외부 API (:8000)
+- 외부 API (api.pongpong.io:80)
     - user가 호출하는 API
-- 관리자 API (:8001)
+- 관리자 API (kong-ingress-controller.kong:8001)
     - consumer를 만들거나 key-auth plugin을 통해 key를 가져옴
-- 관리자 대시보드 KONGA (:1337)
-    -  GUI 관리자 대시보드
 - postgresql (cassandra 지원하긴함)
 
-### API
+### Kong API
 
 기본적으로 유저는 kong api gateway를 호출하고 kong이 다시 내부 서비스를 호출합니다.
 
 - uris - 유저가 호출하는 uri ex) `/user-service`
-- upstream url - uris 규칙으로 들어온 요청을 어디로 전달할지 설정 ex) `http://pong-user-service/api`
-- strip uri - 유저가 `https://api.pongpong.io/user-service/users/1`를 요청하면 `/user-service`를 제거하고 upstream을 요청할때는 `https://api.pongpong.io/api/users/1`을 전달함
+- upstream url - uris 규칙으로 들어온 요청을 어디로 전달할지 설정 ex) `http://user-service/api`
+- strip uri - 유저가 `https://api.pongpong.io/user-service/v1/users/1`를 요청하면 `/user-service`를 제거하고 upstream을 요청할때는 `https://api.pongpong.io/public/v1/users/1`을 전달함
 
 ### Consumer
 
@@ -305,28 +463,12 @@ consumer는 user와 비슷하지만 다른 개념입니다.
 
 `user service`를 통해 로그인을 성공하면 `user service`는 kong의 consumer의 key를 조회하고 응답합니다. 추후 유저는 해당 키를 모든 요청의 header에 실어서 보냅니다.
 
-### [Key Authentication](https://getkong.org/plugins/key-authentication/)
+### Key Authentication
+
+https://getkong.org/plugins/key-authentication/
 
 Kong에 기본으로 내장되어 있는 authentication plugin 입니다.
 
 Header 또는 parameter로 `apikey` 값을 전달하면 key-auth plugin이 자동으로 해당 키를 가지고 있는 consumer를 조회 하고 upstream api를 호출할 때 `X-Consumer-Custom-ID`를 붙여서 전달합니다.
 
 마이크로서비스는 `X-Consumer-Custom-ID`가 있으면 로그인한걸로 판단하고 없으면 로그인하지 않은것으로 판단합니다.
-
-## 로컬 테스트 환경
-
-### /etc/hosts
-
-```
-127.0.0.1 pongpong.io www.pongpong.io api.pongpong.io admin.pongpong.io
-```
-
-### nginx ingress
-
-docker for mac 사용시 필요
-
-```
-$ brew install kubernetes-helm
-$ helm init
-$ helm install stable/nginx-ingress
-```
